@@ -30,11 +30,12 @@ public class RobotController : MonoBehaviour
     void Start()
     {
         //For now, acquire three digger bots on start
-        for(int i = 0; i < 3; i++)
+        for(int i = 0; i < 8; i++)
         {
             GameObject refer = Instantiate(diggerBot, transform);
             ClaimRobot(refer);
         }
+        UIManager.Instance.UpdateBotListUI();
     }
 
     // Update is called once per frame
@@ -107,6 +108,8 @@ public class RobotController : MonoBehaviour
         bot.SetActive(false);
         robots.Add(bot);
         bot.transform.parent = transform;
+
+        UIManager.Instance.UpdateBotListUI();
     }
 
     public void PlaceRobot(Vector3Int mouse_position)
@@ -128,5 +131,7 @@ public class RobotController : MonoBehaviour
         placing = false;
         IMovement move_ref = bot.GetComponent<IMovement>();
         move_ref.PlaceRobot(bot_pos, direction);
+
+        UIManager.Instance.UpdateBotListUI();
     }
 }
