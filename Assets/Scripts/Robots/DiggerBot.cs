@@ -9,7 +9,7 @@ public class DiggerBot : IMovement
     }
     public override void LeaveGrid()
     {
-        Destroy(gameObject);
+        RobotController.Instance.ClaimRobot(gameObject);
     }
 
     public override void MoveTo(Vector2Int new_pos)

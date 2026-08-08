@@ -1,9 +1,18 @@
+using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+//Singleton that manages robots and robot placement
 public class RobotController : MonoBehaviour
 {
-    public GameObject digger_bot;
+    [Header("Game State")]
+    public List<GameObject> robots = new List<GameObject>();
+    public int robot_selected = -1;
+    public bool placing = false;
+
+    [Header("Bot Prefabs")]
+    public GameObject diggerBot;
     
     public static RobotController Instance { get; private set; }
     private void Awake()
@@ -20,19 +29,62 @@ public class RobotController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        //For now, acquire three digger bots on start
+        for(int i = 0; i < 3; i++)
+        {
+            GameObject refer = Instantiate(diggerBot, transform);
+            ClaimRobot(refer);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        RobotSelection();
+        RobotPlacement();
+    }
+    public void RobotSelection()
+    {
+        int key_pressed = GetPressedKeyNumber();
+        if (key_pressed == -1) return;
+        if(key_pressed - 1 == robot_selected)
+        {
+            robot_selected = -1;
+        }
+        else robot_selected = key_pressed - 1;
+        if (robot_selected < 0 || robot_selected > robots.Count - 1) placing = false;
+        else placing = true;
+    }
+
+    private int GetPressedKeyNumber()
+    {
+        for (int i = 1; i <= 9; i++)
+        {
+            KeyCode alphaKey = KeyCode.Alpha0 + i;
+
+            if (Input.GetKeyDown(alphaKey))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+    public void RobotPlacement()
+    {
+        if (placing == false)
+        {
+            MinesweeperLogic.Instance.HighlightColumn(-1);
+            MinesweeperLogic.Instance.HighlightRow(-1);
+            return;
+        }
+
         Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector3Int mouse_position = Board.Instance.tilemap.WorldToCell(worldPosition);
         int board_height = MinesweeperLogic.Instance.height;
         int board_width = MinesweeperLogic.Instance.width;
 
         //Highlight rows/columns for robot placement
-        if(mouse_position.x == -1 && mouse_position.y != board_height || mouse_position.x == board_width && mouse_position.y != -1)
+        if (mouse_position.x == -1 && mouse_position.y != board_height || mouse_position.x == board_width && mouse_position.y != -1)
         {
             MinesweeperLogic.Instance.HighlightRow(mouse_position.y);
             if (Input.GetMouseButtonDown(0)) PlaceRobot(mouse_position);
@@ -49,6 +101,14 @@ public class RobotController : MonoBehaviour
         }
     }
 
+    public void ClaimRobot(GameObject bot)
+    {
+        //Store as child
+        bot.SetActive(false);
+        robots.Add(bot);
+        bot.transform.parent = transform;
+    }
+
     public void PlaceRobot(Vector3Int mouse_position)
     {
         Vector2Int direction = Vector2Int.zero;
@@ -62,8 +122,11 @@ public class RobotController : MonoBehaviour
 
         Vector2Int bot_pos = new Vector2Int(mouse_position.x + direction.x, mouse_position.y +  direction.y);
 
-        GameObject bot_ref = Instantiate(digger_bot);
-        IMovement move_ref = bot_ref.GetComponent<IMovement>();
+        GameObject bot = robots[robot_selected];
+        bot.SetActive(true);
+        robots.RemoveAt(robot_selected);
+        placing = false;
+        IMovement move_ref = bot.GetComponent<IMovement>();
         move_ref.PlaceRobot(bot_pos, direction);
     }
 }

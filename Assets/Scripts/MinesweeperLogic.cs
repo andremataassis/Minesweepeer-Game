@@ -150,6 +150,7 @@ public class MinesweeperLogic : MonoBehaviour
     private void Explode(Cell cell)
     {
         cell.revealed = true;
+        cell.flagged = false;
         state[cell.position.x, cell.position.y] = cell;
     }
 
