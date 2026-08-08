@@ -297,12 +297,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ada05ef4a9ef7e146a68c7081b838fe9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  robots:
-  - {fileID: 8264078808898430794, guid: 621fbb80b4c1c18478e2faa267a9db89, type: 3}
-  - {fileID: 8264078808898430794, guid: 621fbb80b4c1c18478e2faa267a9db89, type: 3}
-  - {fileID: 8264078808898430794, guid: 621fbb80b4c1c18478e2faa267a9db89, type: 3}
+  robots: []
   robot_selected: 0
   placing: 0
+  diggerBot: {fileID: 8264078808898430794, guid: 621fbb80b4c1c18478e2faa267a9db89, type: 3}
 --- !u!4 &506585889
 Transform:
   m_ObjectHideFlags: 0
