@@ -257,7 +257,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileUnknown: {fileID: 11400000, guid: 5aef40d778b388f41a8fbd79236d3373, type: 2}
   tileEmpty: {fileID: 11400000, guid: 94352b9827b79974b9f5cb031a358d36, type: 2}
-  tileHighlighted: {fileID: 11400000, guid: ff6eb8d2c2b2a5141b09606ba15e2e97, type: 2}
   tileMine: {fileID: 11400000, guid: ae5436de9f39f2f4b8654733cadb67b5, type: 2}
   tileExploded: {fileID: 11400000, guid: ec0100ef2e46e3f43a02dd6bc31356a6, type: 2}
   tileFlag: {fileID: 11400000, guid: 6cbc19f6ff57d3441bb2b36085344851, type: 2}
@@ -280,7 +279,7 @@ GameObject:
   - component: {fileID: 506585889}
   - component: {fileID: 506585888}
   m_Layer: 0
-  m_Name: MouseController
+  m_Name: RobotController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

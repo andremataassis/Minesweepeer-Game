@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class MouseController : MonoBehaviour
+public class RobotController : MonoBehaviour
 {
     public GameObject digger_bot;
     
-    public static MouseController Instance { get; private set; }
+    public static RobotController Instance { get; private set; }
     private void Awake()
     {
         // Enforce the single-instance rule
