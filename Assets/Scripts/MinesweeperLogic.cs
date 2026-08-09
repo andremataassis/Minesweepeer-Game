@@ -12,6 +12,8 @@ public class MinesweeperLogic : MonoBehaviour
     [Header("Game State")]
     public int mines_revealed = 0;
     public int flags_placed = 0;
+    //Whether mines_revealed + flags_placed == mineCount -- this being true does NOT mean the game is won
+    public bool win_state = false;
 
     private Cell[,] state;
 
@@ -49,7 +51,24 @@ public class MinesweeperLogic : MonoBehaviour
         {
             Flag();
         }
+        if (Input.GetKey(KeyCode.Keypad0))
+        {
+            RevealAllCells();
+        }
         Board.Instance.Draw(state);
+        win_state = CheckIfCanWin();
+    }
+
+    public void RevealAllCells()
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                Cell cell = GetCell(x, y);
+                Reveal(cell);
+            }
+        }
     }
 
     //To unhighlight, just give an invalid row #
@@ -216,6 +235,24 @@ public class MinesweeperLogic : MonoBehaviour
     public bool IsValid(int x, int y)
     {
         return x >= 0 && x < width && y >= 0 && y < height;
+    }
+    public bool CheckIfCanWin()
+    {
+        return flags_placed + mines_revealed == mineCount;
+    }
+
+    public bool CheckIfWon()
+    {
+        if(win_state == false) return false;
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                Cell cell = GetCell(x, y);
+                if (cell.flagged && cell.type != Cell.Type.Mine || cell.type == Cell.Type.Mine && cell.revealed == false && cell.flagged == false) return false;
+            }
+        }
+        return true;
     }
 
     private void NewGame()

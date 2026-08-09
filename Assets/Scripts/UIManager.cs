@@ -8,6 +8,8 @@ public class UIManager : MonoBehaviour
     public float left_panel_width;
     public float bot_pos_increments;
     [SerializeField] public GameObject image_prefab;
+    [SerializeField] public GameObject submit_button_ref;
+    private Button submit_button;
     public static UIManager Instance { get; private set; }
     private void Awake()
     {
@@ -17,7 +19,7 @@ public class UIManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
+        submit_button = submit_button_ref.GetComponent<Button>();
         Instance = this;
     }
 
@@ -48,6 +50,13 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void SubmitButtonOnClick()
+    {
+        bool result = MinesweeperLogic.Instance.CheckIfWon();
+        Debug.Log(result);
+        if (result) Destroy(this.gameObject);
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -60,6 +69,6 @@ public class UIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        submit_button.interactable = MinesweeperLogic.Instance.win_state;
     }
 }
