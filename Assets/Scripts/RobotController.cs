@@ -33,18 +33,19 @@ public class RobotController : MonoBehaviour
         for(int i = 0; i < 8; i++)
         {
             GameObject refer = Instantiate(diggerBot, transform);
+            refer.GetComponent<SpriteRenderer>().color = Random.ColorHSV();
             ClaimRobot(refer);
         }
-        UIManager.Instance.UpdateBotListUI();
+        UnselectRobot();
     }
 
     // Update is called once per frame
     void Update()
     {
-        RobotSelection();
+        NumKeyRobotSelection();
         RobotPlacement();
     }
-    public void RobotSelection()
+    public void NumKeyRobotSelection()
     {
         int key_pressed = GetPressedKeyNumber();
         if (key_pressed == -1) return;
@@ -55,6 +56,21 @@ public class RobotController : MonoBehaviour
         else robot_selected = key_pressed - 1;
         if (robot_selected < 0 || robot_selected > robots.Count - 1) placing = false;
         else placing = true;
+        UIManager.Instance.UpdateBotListUI();
+    }
+    public void SelectRobot(int select)
+    {
+        placing = true;
+        if(robot_selected == select) UnselectRobot();
+        else robot_selected = select;
+        UIManager.Instance.UpdateBotListUI();
+    }
+
+    public void UnselectRobot()
+    {
+        placing = false;
+        robot_selected = -1;
+        UIManager.Instance.UpdateBotListUI();
     }
 
     private int GetPressedKeyNumber()
@@ -85,12 +101,12 @@ public class RobotController : MonoBehaviour
         int board_width = MinesweeperLogic.Instance.width;
 
         //Highlight rows/columns for robot placement
-        if (mouse_position.x == -1 && mouse_position.y != board_height || mouse_position.x == board_width && mouse_position.y != -1)
+        if (mouse_position.x == -1 && mouse_position.y < board_height && mouse_position.y > -1 || mouse_position.x == board_width && mouse_position.y > -1 && mouse_position.y < board_height)
         {
             MinesweeperLogic.Instance.HighlightRow(mouse_position.y);
             if (Input.GetMouseButtonDown(0)) PlaceRobot(mouse_position);
         }
-        else if (mouse_position.x != -1 && mouse_position.y == board_height || mouse_position.x != board_width && mouse_position.y == -1)
+        else if (mouse_position.x > -1 && mouse_position.x < board_width && mouse_position.y == board_height || mouse_position.x < board_width && mouse_position.x > -1 && mouse_position.y == -1)
         {
             MinesweeperLogic.Instance.HighlightColumn(mouse_position.x);
             if (Input.GetMouseButtonDown(0)) PlaceRobot(mouse_position);
@@ -128,7 +144,7 @@ public class RobotController : MonoBehaviour
         GameObject bot = robots[robot_selected];
         bot.SetActive(true);
         robots.RemoveAt(robot_selected);
-        placing = false;
+        UnselectRobot();
         IMovement move_ref = bot.GetComponent<IMovement>();
         move_ref.PlaceRobot(bot_pos, direction);
 

@@ -127,7 +127,7 @@ public class MinesweeperLogic : MonoBehaviour
 
     public void Reveal(Cell cell)
     {
-        if (cell.type == Cell.Type.Invalid || cell.revealed || cell.flagged)
+        if (cell.type == Cell.Type.Invalid || cell.revealed)
         {
             return;
         }
