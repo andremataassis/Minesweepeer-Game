@@ -728,6 +728,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   left_panel: {fileID: 1087222080}
+  left_panel_height: 0
+  left_panel_width: 0
+  bot_pos_increments: 0
   image_prefab: {fileID: 4911445280336783312, guid: f40a8909c608e304b962e855d2485af2, type: 3}
 --- !u!1 &1589252897
 GameObject:
@@ -790,6 +793,13 @@ MonoBehaviour:
   width: 15
   height: 15
   mineCount: 15
+  mines_revealed: 0
+  flags_placed: 0
+  flag_overlay_on: 1
+  flag_overlay_pos: {x: 0, y: 0}
+  highlighted_row: 0
+  highlighted_column: 0
+  flag_overlay_prefab: {fileID: 227145653504854904, guid: dc463e02874d29c4f9b9ed0a60b035ef, type: 3}
 --- !u!1 &2133452510
 GameObject:
   m_ObjectHideFlags: 0

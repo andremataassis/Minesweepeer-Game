@@ -96,6 +96,7 @@ public class RobotController : MonoBehaviour
         }
 
         Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //To be clear, this is mouse position on the tilemap
         Vector3Int mouse_position = Board.Instance.tilemap.WorldToCell(worldPosition);
         int board_height = MinesweeperLogic.Instance.height;
         int board_width = MinesweeperLogic.Instance.width;

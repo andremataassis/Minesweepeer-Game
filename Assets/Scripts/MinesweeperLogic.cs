@@ -4,16 +4,20 @@ using UnityEngine;
 //Singleton
 public class MinesweeperLogic : MonoBehaviour
 {
+    [Header("Game Settings")]
     public int width = 36;
     public int height = 20;
     public int mineCount = 50;
 
+    [Header("Game State")]
+    public int mines_revealed = 0;
+    public int flags_placed = 0;
+
     private Cell[,] state;
 
     //Highlight effects
-    private Cell selected_cell;
-    private int highlighted_row;
-    private int highlighted_column;
+    public int highlighted_row;
+    public int highlighted_column;
 
     public static MinesweeperLogic Instance { get; private set; }
 
@@ -45,35 +49,16 @@ public class MinesweeperLogic : MonoBehaviour
         {
             Flag();
         }
-
-        SelectCell();
-
         Board.Instance.Draw(state);
-    }
-
-    //Highlights cell that mouse is over
-    private void SelectCell()
-    {
-        if (selected_cell.type == Cell.Type.Invalid) return;
-
-        //Highlight effect
-        selected_cell = GetCell(selected_cell.position.x, selected_cell.position.y);
-        selected_cell.highlighted = false;
-        state[selected_cell.position.x, selected_cell.position.y] = selected_cell;
-
-        selected_cell = worldCoordinateToCell();
-        if (selected_cell.type == Cell.Type.Invalid) return;
-        selected_cell.highlighted = true;
-        state[selected_cell.position.x, selected_cell.position.y] = selected_cell;
     }
 
     //To unhighlight, just give an invalid row #
     public void HighlightRow(int row)
     {
-        int width = state.GetLength(0);
         //unhighlight previous
         for (int i = 0; i < width; i++)
         {
+            if(highlighted_row == -1) break;
             Cell cell = GetCell(i, highlighted_row);
             cell.highlighted = false;
             state[cell.position.x, cell.position.y] = cell;
@@ -83,7 +68,11 @@ public class MinesweeperLogic : MonoBehaviour
         for (int i = 0; i < width; i++)
         {
             Cell cell = GetCell(i, row);
-            if (cell.type == Cell.Type.Invalid) return;
+            if (cell.type == Cell.Type.Invalid)
+            {
+                highlighted_row = -1;
+                return;
+            }
             cell.highlighted = true;
             state[cell.position.x, cell.position.y] = cell;
         }
@@ -93,20 +82,24 @@ public class MinesweeperLogic : MonoBehaviour
     //To unhighlight, just give an invalid column #
     public void HighlightColumn(int column)
     {
-        int length = state.GetLength(1);
         //unhighlight previous
-        for (int i = 0; i < length; i++)
+        for (int i = 0; i < height; i++)
         {
+            if (highlighted_column == -1) break;
             Cell cell = GetCell(highlighted_column, i);
             cell.highlighted = false;
             state[cell.position.x, cell.position.y] = cell;
         }
 
         //highlight new
-        for (int i = 0; i < length; i++)
+        for (int i = 0; i < height; i++)
         {
             Cell cell = GetCell(column, i);
-            if (cell.type == Cell.Type.Invalid) return;
+            if (cell.type == Cell.Type.Invalid)
+            {
+                highlighted_column = -1;
+                return;
+            }
             cell.highlighted = true;
             state[cell.position.x, cell.position.y] = cell;
         }
@@ -131,16 +124,22 @@ public class MinesweeperLogic : MonoBehaviour
         {
             return;
         }
+        else if (cell.flagged)
+        {
+            cell.flagged = false;
+            flags_placed--;
+        }
 
         switch (cell.type)
         {
             case Cell.Type.Mine:
+                mines_revealed++;
                 Explode(cell);
                 break;
             case Cell.Type.Empty:
                 Flood(cell);
                 break;
-            default: 
+            default:
                 cell.revealed = true;
                 state[cell.position.x, cell.position.y] = cell;
                 break;
@@ -158,6 +157,7 @@ public class MinesweeperLogic : MonoBehaviour
     {
         if(cell.revealed) return;
         if (cell.type == Cell.Type.Mine || cell.type == Cell.Type.Invalid) return;
+        if (cell.flagged) { cell.flagged = false; flags_placed--; }
 
         cell.revealed = true;
         state[cell.position.x, cell.position.y] = cell;
@@ -183,7 +183,22 @@ public class MinesweeperLogic : MonoBehaviour
         }
 
         cell.flagged = !cell.flagged;
+        if (cell.flagged) flags_placed++;
+        else flags_placed--;
         state[cellPosition.x, cellPosition.y] = cell;
+    }
+
+    private void Flag(Cell cell)
+    {
+        if (cell.type == Cell.Type.Invalid || cell.revealed)
+        {
+            return;
+        }
+
+        cell.flagged = !cell.flagged;
+        if (cell.flagged) flags_placed++;
+        else flags_placed--;
+        state[cell.position.x, cell.position.y] = cell;
     }
 
     public Cell GetCell(int x, int y)
