@@ -53,7 +53,6 @@ public class UIManager : MonoBehaviour
     public void SubmitButtonOnClick()
     {
         bool result = MinesweeperLogic.Instance.CheckIfWon();
-        Debug.Log(result);
         if (result) Destroy(this.gameObject);
     }
 
