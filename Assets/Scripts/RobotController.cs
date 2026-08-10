@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Data;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -58,6 +59,10 @@ public class RobotController : MonoBehaviour
         else placing = true;
         UIManager.Instance.UpdateBotListUI();
     }
+    public GameObject GetSelectedRobot()
+    {
+        return robots[robot_selected];
+    }
     public void SelectRobot(int select)
     {
         placing = true;
@@ -104,16 +109,19 @@ public class RobotController : MonoBehaviour
         //Highlight rows/columns for robot placement
         if (mouse_position.x == -1 && mouse_position.y < board_height && mouse_position.y > -1 || mouse_position.x == board_width && mouse_position.y > -1 && mouse_position.y < board_height)
         {
+            UIManager.Instance.ToggleValidRobotPlacementUI(true);
             MinesweeperLogic.Instance.HighlightRow(mouse_position.y);
             if (Input.GetMouseButtonDown(0)) PlaceRobot(mouse_position);
         }
         else if (mouse_position.x > -1 && mouse_position.x < board_width && mouse_position.y == board_height || mouse_position.x < board_width && mouse_position.x > -1 && mouse_position.y == -1)
         {
+            UIManager.Instance.ToggleValidRobotPlacementUI(true);
             MinesweeperLogic.Instance.HighlightColumn(mouse_position.x);
             if (Input.GetMouseButtonDown(0)) PlaceRobot(mouse_position);
         }
         else
         {
+            UIManager.Instance.ToggleValidRobotPlacementUI(false);
             MinesweeperLogic.Instance.HighlightColumn(-1);
             MinesweeperLogic.Instance.HighlightRow(-1);
         }

@@ -125,9 +125,8 @@ public class MinesweeperLogic : MonoBehaviour
         highlighted_column = column;
     }
 
-    private Cell worldCoordinateToCell()
+    public Cell worldCoordinateToCell(Vector3 worldPosition)
     {
-        Vector3 worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector3Int cellPosition = Board.Instance.tilemap.WorldToCell(worldPosition);
         return GetCell(cellPosition.x, cellPosition.y);
     }
@@ -228,7 +227,11 @@ public class MinesweeperLogic : MonoBehaviour
         }
         else
         {
-            return new Cell();
+            Cell cell = new Cell();
+            cell.position.x = x;
+            cell.position.y = y;
+            cell.type = Cell.Type.Invalid;
+            return cell;
         }
     }
 

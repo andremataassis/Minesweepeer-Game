@@ -1,6 +1,8 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
 
 public class UIManager : MonoBehaviour
 {
@@ -13,6 +15,9 @@ public class UIManager : MonoBehaviour
     private Button submit_button;
     [SerializeField] public GameObject completion_txt_ref;
     private TextMeshProUGUI completion_txt;
+    [SerializeField] public GameObject flag_overlay_ref;
+    [SerializeField] public GameObject robot_overlay_ref;
+    private bool valid_robot_placement = false;
     public static UIManager Instance { get; private set; }
     private void Awake()
     {
@@ -25,6 +30,11 @@ public class UIManager : MonoBehaviour
         submit_button = submit_button_ref.GetComponent<Button>();
         completion_txt = completion_txt_ref.GetComponent<TextMeshProUGUI>();
         Instance = this;
+    }
+
+    public void ToggleValidRobotPlacementUI(bool x)
+    {
+        valid_robot_placement = x;
     }
 
     public void UpdateBotListUI()
@@ -49,8 +59,12 @@ public class UIManager : MonoBehaviour
 
             //Modify button component for selection
             Button button = img_ref.GetComponent <Button>();
+            if(RobotController.Instance.robot_selected == i) button.Select();
             int this_robot = i;
             button.onClick.AddListener(() => RobotController.Instance.SelectRobot(this_robot));
+
+            TextMeshProUGUI txt = img_ref.GetComponentInChildren<TextMeshProUGUI>();
+            txt.text = $"{this_robot + 1}";
         }
     }
 
@@ -73,6 +87,8 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         UpdateGameStateUI();
+        UpdateFlagOverlay();
+        UpdateRobotOverlay();
     }
 
     public void UpdateGameStateUI()
@@ -82,5 +98,39 @@ public class UIManager : MonoBehaviour
         int mines = MinesweeperLogic.Instance.mines_revealed;
         int mines_total = MinesweeperLogic.Instance.mineCount;
         completion_txt.text = $"{flags}<sprite=0> + {mines}<sprite=1>  = {flags + mines} / {mines_total}";
+    }
+
+    public void UpdateFlagOverlay()
+    {
+        flag_overlay_ref.SetActive(false);
+
+        //Debating whether flag placement should be enabled while a robot is selected...
+        //if (RobotController.Instance.placing) return;
+
+        Cell cell = MinesweeperLogic.Instance.worldCoordinateToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (cell.type == Cell.Type.Invalid || cell.revealed) return;
+        flag_overlay_ref.transform.position = MinesweeperLogic.Instance.cellToWorldCoordinate(cell);
+        flag_overlay_ref.SetActive(true);
+    }
+
+    public void UpdateRobotOverlay()
+    {
+        robot_overlay_ref.SetActive(false);
+
+        if (!RobotController.Instance.placing || !valid_robot_placement) return;
+
+        Cell cell = MinesweeperLogic.Instance.worldCoordinateToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (cell.type != Cell.Type.Invalid) return;
+        robot_overlay_ref.transform.position = MinesweeperLogic.Instance.cellToWorldCoordinate(cell);
+        robot_overlay_ref.SetActive(true);
+        SpriteRenderer robot_spr = RobotController.Instance.GetSelectedRobot().GetComponent<SpriteRenderer>();
+        robot_overlay_ref.GetComponent<SpriteRenderer>().sprite = robot_spr.sprite;
+        robot_overlay_ref.GetComponent<SpriteRenderer>().color = robot_spr.color;
+        robot_overlay_ref.GetComponent<SpriteRenderer>().material = robot_spr.material;
+        robot_overlay_ref.GetComponent<SpriteRenderer>().sortingLayerID = robot_spr.sortingLayerID;
+        robot_overlay_ref.GetComponent<SpriteRenderer>().sortingOrder = robot_spr.sortingOrder;
+        robot_overlay_ref.GetComponent<SpriteRenderer>().flipX = robot_spr.flipX;
+        robot_overlay_ref.GetComponent<SpriteRenderer>().flipY = robot_spr.flipY;
+        robot_overlay_ref.GetComponent<SpriteRenderer>().drawMode = robot_spr.drawMode;
     }
 }
