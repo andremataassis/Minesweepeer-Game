@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +11,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] public GameObject image_prefab;
     [SerializeField] public GameObject submit_button_ref;
     private Button submit_button;
+    [SerializeField] public GameObject completion_txt_ref;
+    private TextMeshProUGUI completion_txt;
     public static UIManager Instance { get; private set; }
     private void Awake()
     {
@@ -20,6 +23,7 @@ public class UIManager : MonoBehaviour
             return;
         }
         submit_button = submit_button_ref.GetComponent<Button>();
+        completion_txt = completion_txt_ref.GetComponent<TextMeshProUGUI>();
         Instance = this;
     }
 
@@ -68,6 +72,15 @@ public class UIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        UpdateGameStateUI();
+    }
+
+    public void UpdateGameStateUI()
+    {
         submit_button.interactable = MinesweeperLogic.Instance.win_state;
+        int flags = MinesweeperLogic.Instance.flags_placed;
+        int mines = MinesweeperLogic.Instance.mines_revealed;
+        int mines_total = MinesweeperLogic.Instance.mineCount;
+        completion_txt.text = $"{flags}<sprite=0> + {mines}<sprite=1>  = {flags + mines} / {mines_total}";
     }
 }
