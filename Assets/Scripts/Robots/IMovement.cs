@@ -14,7 +14,7 @@ public abstract class IMovement : MonoBehaviour
 {
     public Vector2Int position;
     public Vector2Int direction;
-    public int health;
+    private int health;
     public List<RobotCommand> on_flag;
 
     //Logic for when robot is placed
@@ -27,10 +27,31 @@ public abstract class IMovement : MonoBehaviour
     public abstract void TakeStep();
 
     //Logic for when robot leaves the grid
-    public abstract void LeaveGrid();
+    public void LeaveGrid()
+    {
+        RobotController.Instance.ClaimRobot(gameObject);
+    }
 
     //Logic for when robot steps on a mine
     public abstract void StepOnMine();
 
-    public abstract void OnSeeFlag();
+    public void OnSeeFlag()
+    {
+        for (int i = 0; i < on_flag.Count; i++)
+        {
+            RobotCommand command = on_flag[i];
+            switch (command)
+            {
+                case RobotCommand.TurnLeft:
+                    this.direction = new Vector2Int(-direction.y, direction.x);
+                    break;
+                case RobotCommand.TurnRight:
+                    this.direction = new Vector2Int(direction.y, -direction.x);
+                    break;
+            }
+        }
+    }
+    public void SetHealth(int h) { health = h; }
+    public void LoseHealth() { health -= 1; }
+    public int GetHealth() { return health; }
 }

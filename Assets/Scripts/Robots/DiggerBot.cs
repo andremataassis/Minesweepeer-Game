@@ -7,14 +7,8 @@ public class DiggerBot : IMovement
 {
     public void Start()
     {
-        health = 1;
+        SetHealth(1);
         on_flag = new List<RobotCommand>();
-        //REMEMBER TO DELETE THE FOLLOWING
-        on_flag.Add(RobotCommand.TurnRight);
-    }
-    public override void LeaveGrid()
-    {
-        RobotController.Instance.ClaimRobot(gameObject);
     }
 
     public override void MoveTo(Vector2Int new_pos)
@@ -71,24 +65,7 @@ public class DiggerBot : IMovement
 
     public override void StepOnMine()
     {
-        health -= 1;
-        if (health <= 0) Destroy(gameObject);
-    }
-
-    public override void OnSeeFlag()
-    {
-        for (int i = 0; i < on_flag.Count; i++)
-        {
-            RobotCommand command = on_flag[i];
-            switch (command)
-            {
-                case RobotCommand.TurnLeft:
-                    this.direction = new Vector2Int(-direction.y, direction.x);
-                    break;
-                case RobotCommand.TurnRight:
-                    this.direction = new Vector2Int(direction.y, -direction.x);
-                    break;
-            }
-        }
+        LoseHealth();
+        if (GetHealth() <= 0) Destroy(gameObject);
     }
 }
