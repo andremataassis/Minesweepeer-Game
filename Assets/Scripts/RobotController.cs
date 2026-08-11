@@ -14,6 +14,16 @@ public class RobotController : MonoBehaviour
 
     [Header("Bot Prefabs")]
     public GameObject diggerBot;
+
+    [Header("Code Block Prefabs")]
+    public GameObject root_prefab;
+    public GameObject node_prefab;
+
+    [Header("Other")]
+    public GameObject code_block_display_ref;
+
+    public List<RobotCommand> command_bank = new List<RobotCommand>();
+    private int robot_commands_open = -1;
     
     public static RobotController Instance { get; private set; }
     private void Awake()
@@ -158,5 +168,79 @@ public class RobotController : MonoBehaviour
         move_ref.PlaceRobot(bot_pos, direction);
 
         UIManager.Instance.UpdateBotListUI();
+    }
+
+    public void DisplayCodeBlocks(int robot)
+    {
+        if(robot < 0 || robot >= robots.Count) return;
+        robot_commands_open = robot;
+        UIManager.Instance.SetCodeBlockUI(true);
+
+        //Fetch everything we need
+        GameObject robot_ref = robots[robot];
+        IMovement movement_ref = robot_ref.GetComponent<IMovement>();
+        List<RobotCommand> flag_command_list = movement_ref.on_flag;
+
+        //Instantiate the command bank code blocks
+        for(int i = 0; i < command_bank.Count; i++)
+        {
+            GameObject node_ref = Instantiate(node_prefab, code_block_display_ref.transform);
+            DraggableNode node = node_ref.GetComponent<DraggableNode>();
+            node.SetCommand(command_bank[i]);
+        }
+
+        //Return if command list empty
+        if (flag_command_list.Count == 0) return;
+
+        //Instantiate root
+        GameObject root_ref = Instantiate(root_prefab, code_block_display_ref.transform);
+        DropRoot root = root_ref.GetComponent<DropRoot>();
+        root.SetTrigger("On Flag");
+
+        for(int i = 0; i < flag_command_list.Count; i++) 
+        {
+            RobotCommand command = flag_command_list[i];
+            GameObject node_ref = Instantiate(node_prefab);
+            DraggableNode node = node_ref.GetComponent<DraggableNode>();
+            node.SetCommand(command);
+            node.AttachToRoot(root);
+        }
+    }
+
+    //This syncs the new code block state with the robot, stores unused commands in the bank,
+    //and closes everything up so we're back to the main game
+    public void CloseCodeBlocks()
+    {
+        List<RobotCommand> new_command_bank = new List<RobotCommand>();
+
+        //Backwards loop is necessary because we destroy the child after loading
+        for(int i = code_block_display_ref.transform.childCount - 1; i >= 0; i--)
+        {
+            Transform child = code_block_display_ref.transform.GetChild(i);
+            DropRoot root = child.GetComponent<DropRoot>();
+
+            //Option #1: We're looking at a root (load commands into robot)
+            if (root != null)
+            {
+                if(root.trigger == "On Flag")
+                {
+                    IMovement robot_script = robots[robot_commands_open].GetComponent<IMovement>();
+                    robot_script.on_flag = root.GetCommandList();
+                }
+            }
+            //Option #2: We're looking at an UNATTACHED node (put it in the command bank)
+            else
+            {
+                DraggableNode node = child.GetComponent<DraggableNode>();
+                new_command_bank.Add(node.command);
+            }
+
+            //Done loading so we can get rid of it
+            Destroy(child.gameObject);
+        }
+
+        command_bank = new_command_bank;
+        robot_commands_open = -1;
+        UIManager.Instance.SetCodeBlockUI(false);
     }
 }

@@ -7,6 +7,7 @@ public class DropRoot : MonoBehaviour
     [SerializeField] public GameObject attach_zone_ref;
     private BoxCollider2D collider;
     public List<DraggableNode> nodes;
+    public string trigger = null;
 
     private void Awake()
     {
@@ -21,7 +22,7 @@ public class DropRoot : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateColliderPosition();
+        
     }
     
     public void UpdateColliderPosition()
@@ -47,6 +48,7 @@ public class DropRoot : MonoBehaviour
     {
         if (node.current_root != this) return;
         nodes.Add(node);
+        UpdateColliderPosition();
     }
 
     public void RemoveNode(DraggableNode node)
@@ -66,4 +68,17 @@ public class DropRoot : MonoBehaviour
             node.gameObject.transform.position = transform.position + offset;
         }
     }
+
+    public List<RobotCommand> GetCommandList()
+    {
+        List<RobotCommand> list = new List<RobotCommand>();
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            DraggableNode node = nodes[i];
+            list.Add(node.command);
+        }
+        return list;
+    }
+
+    public void SetTrigger(string trigger_name) { trigger = trigger_name; }
 }

@@ -1,4 +1,5 @@
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -18,6 +19,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] public GameObject flag_overlay_ref;
     [SerializeField] public GameObject robot_overlay_ref;
     private bool valid_robot_placement = false;
+    [SerializeField] public GameObject code_block_ui_ref;
     public static UIManager Instance { get; private set; }
     private void Awake()
     {
@@ -58,12 +60,16 @@ public class UIManager : MonoBehaviour
             img.color = bot_sr.color;
 
             //Modify button component for selection
-            Button button = img_ref.GetComponent <Button>();
-            if(RobotController.Instance.robot_selected == i) button.Select();
+            Button select_button = img_ref.GetComponent<Button>();
+            if(RobotController.Instance.robot_selected == i) select_button.Select();
             int this_robot = i;
-            button.onClick.AddListener(() => RobotController.Instance.SelectRobot(this_robot));
+            select_button.onClick.AddListener(() => RobotController.Instance.SelectRobot(this_robot));
 
-            TextMeshProUGUI txt = img_ref.GetComponentInChildren<TextMeshProUGUI>();
+            //Set up code button
+            Button edit_button = img_ref.transform.GetChild(1).GetComponent<Button>();
+            edit_button.onClick.AddListener(() => RobotController.Instance.DisplayCodeBlocks(this_robot));
+
+            TextMeshProUGUI txt = img_ref.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
             txt.text = $"{this_robot + 1}";
         }
     }
@@ -132,5 +138,14 @@ public class UIManager : MonoBehaviour
         robot_overlay_ref.GetComponent<SpriteRenderer>().flipX = robot_spr.flipX;
         robot_overlay_ref.GetComponent<SpriteRenderer>().flipY = robot_spr.flipY;
         robot_overlay_ref.GetComponent<SpriteRenderer>().drawMode = robot_spr.drawMode;
+    }
+
+    public void SetCodeBlockUI(bool enabled)
+    {
+        code_block_ui_ref.SetActive(enabled);
+        foreach(Transform child in transform)
+        {
+            if(child.gameObject.tag == "MainGameUI") child.gameObject.SetActive(!enabled);
+        }
     }
 }

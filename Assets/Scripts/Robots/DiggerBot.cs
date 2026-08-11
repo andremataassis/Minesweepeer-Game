@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+//DiggerBot is the most basic bot. It can follow commands based on triggers, but other than that
+//it just moves forward each step.
 public class DiggerBot : IMovement
 {
-    public void Start()
+    public void Awake()
     {
         SetHealth(1);
         on_flag = new List<RobotCommand>();
+        on_flag.Add(RobotCommand.TurnRight);
     }
 
     public override void MoveTo(Vector2Int new_pos)

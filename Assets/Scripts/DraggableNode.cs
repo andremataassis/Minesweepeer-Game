@@ -6,6 +6,7 @@ public class DraggableNode : MonoBehaviour
     private float mZCoord;
     private bool dragging = false;
     public DropRoot current_root = null;
+    public RobotCommand command = RobotCommand.None;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -56,8 +57,10 @@ public class DraggableNode : MonoBehaviour
     public void DeattachFromRoot()
     {
         if (current_root == null) return;
-        transform.SetParent(null);
+        transform.SetParent(current_root.transform.parent);
         current_root.RemoveNode(this);
         current_root = null;
     }
+
+    public void SetCommand(RobotCommand new_command) { command = new_command; }
 }
