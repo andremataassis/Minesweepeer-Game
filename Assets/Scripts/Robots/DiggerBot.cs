@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DiggerBot : IMovement
@@ -6,6 +8,9 @@ public class DiggerBot : IMovement
     public void Start()
     {
         health = 1;
+        on_flag = new List<RobotCommand>();
+        //REMEMBER TO DELETE THE FOLLOWING
+        on_flag.Add(RobotCommand.TurnRight);
     }
     public override void LeaveGrid()
     {
@@ -40,6 +45,9 @@ public class DiggerBot : IMovement
     {
         while (true)
         {
+            //Purely visual: make robot face direction
+            transform.rotation = Quaternion.LookRotation(Vector3.forward, (Vector2)direction);
+
             yield return new WaitForSeconds(0.5f);
             TakeStep();
         }
@@ -48,6 +56,16 @@ public class DiggerBot : IMovement
     public override void TakeStep()
     {
         Vector2Int new_pos = position + direction;
+        Cell new_cell = MinesweeperLogic.Instance.GetCell(new_pos.x, new_pos.y);
+
+        //Command triggers
+        if (new_cell.flagged) OnSeeFlag();
+
+        //Recalculate new position b/c robot commands may have changed it
+        Vector2Int post_command_pos = position + direction;
+
+        //Turning takes a step, we only call MoveTo() if the robot's direction didn't change
+        if (post_command_pos != new_pos) return;
         MoveTo(new_pos);
     }
 
@@ -55,5 +73,22 @@ public class DiggerBot : IMovement
     {
         health -= 1;
         if (health <= 0) Destroy(gameObject);
+    }
+
+    public override void OnSeeFlag()
+    {
+        for (int i = 0; i < on_flag.Count; i++)
+        {
+            RobotCommand command = on_flag[i];
+            switch (command)
+            {
+                case RobotCommand.TurnLeft:
+                    this.direction = new Vector2Int(-direction.y, direction.x);
+                    break;
+                case RobotCommand.TurnRight:
+                    this.direction = new Vector2Int(direction.y, -direction.x);
+                    break;
+            }
+        }
     }
 }
