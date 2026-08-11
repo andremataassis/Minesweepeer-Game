@@ -7,6 +7,15 @@ public class DraggableNode : MonoBehaviour
     private bool dragging = false;
     public DropRoot current_root = null;
     public RobotCommand command = RobotCommand.None;
+    [Header("Sprites")]
+    [SerializeField] public Sprite left_command_sprite;
+    [SerializeField] public Sprite right_command_sprite;
+    private SpriteRenderer sprite_renderer;
+
+    private void Awake()
+    {
+        sprite_renderer = gameObject.GetComponent<SpriteRenderer>();
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -62,5 +71,17 @@ public class DraggableNode : MonoBehaviour
         current_root = null;
     }
 
-    public void SetCommand(RobotCommand new_command) { command = new_command; }
+    public void SetCommand(RobotCommand new_command) 
+    { 
+        command = new_command;
+        switch (command)
+        {
+            case RobotCommand.TurnLeft:
+                sprite_renderer.sprite = left_command_sprite;
+                break;
+            case RobotCommand.TurnRight:
+                sprite_renderer.sprite = right_command_sprite;
+                break;
+        }
+    }
 }

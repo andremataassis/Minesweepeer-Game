@@ -8,10 +8,12 @@ public class DropRoot : MonoBehaviour
     private BoxCollider2D collider;
     public List<DraggableNode> nodes;
     public string trigger = null;
+    private Vector2 start_offset;
 
     private void Awake()
     {
         collider = GetComponent<BoxCollider2D>();
+        start_offset = collider.offset;
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -27,7 +29,7 @@ public class DropRoot : MonoBehaviour
     
     public void UpdateColliderPosition()
     {
-        collider.offset = new Vector2(0, -1*nodes.Count - 1);
+        collider.offset = new Vector2(0, (start_offset.y)* nodes.Count + (start_offset.y));
     }
     private void OnCollisionStay2D(Collision2D collision)
     {
@@ -64,7 +66,7 @@ public class DropRoot : MonoBehaviour
         for(int i = 0; i < nodes.Count; i++) 
         {
             DraggableNode node = nodes[i];
-            Vector3 offset = new Vector3(0, -1 - i, 0);
+            Vector3 offset = new Vector3(0, (start_offset.y) + i*start_offset.y, 0);
             node.gameObject.transform.position = transform.position + offset;
         }
     }

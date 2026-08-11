@@ -92,6 +92,7 @@ public class UIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (MinesweeperLogic.Instance.paused) return;
         UpdateGameStateUI();
         UpdateFlagOverlay();
         UpdateRobotOverlay();

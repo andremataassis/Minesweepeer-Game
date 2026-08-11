@@ -23,6 +23,7 @@ public class RobotController : MonoBehaviour
     public GameObject code_block_display_ref;
 
     public List<RobotCommand> command_bank = new List<RobotCommand>();
+    //What robot we're currently looking at commands for
     private int robot_commands_open = -1;
     
     public static RobotController Instance { get; private set; }
