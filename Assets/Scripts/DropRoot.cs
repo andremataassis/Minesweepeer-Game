@@ -53,5 +53,17 @@ public class DropRoot : MonoBehaviour
     {
         if (node.current_root != this) return;
         nodes.Remove(node);
+        ArrangeNodes();
+    }
+
+    private void ArrangeNodes()
+    {
+        UpdateColliderPosition();
+        for(int i = 0; i < nodes.Count; i++) 
+        {
+            DraggableNode node = nodes[i];
+            Vector3 offset = new Vector3(0, -1 - i, 0);
+            node.gameObject.transform.position = transform.position + offset;
+        }
     }
 }
