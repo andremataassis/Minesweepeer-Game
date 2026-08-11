@@ -42,6 +42,7 @@ public class DiggerBot : IMovement
     {
         while (true)
         {
+            if (MinesweeperLogic.Instance.paused) continue;
             //Purely visual: make robot face direction
             transform.rotation = Quaternion.LookRotation(Vector3.forward, (Vector2)direction);
 

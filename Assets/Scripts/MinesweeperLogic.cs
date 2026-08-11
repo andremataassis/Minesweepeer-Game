@@ -21,6 +21,8 @@ public class MinesweeperLogic : MonoBehaviour
     public int highlighted_row;
     public int highlighted_column;
 
+    public bool paused = false;
+
     public static MinesweeperLogic Instance { get; private set; }
 
     private void OnValidate()
@@ -47,6 +49,7 @@ public class MinesweeperLogic : MonoBehaviour
 
     private void Update()
     {
+        if (paused) return;
         if (Input.GetMouseButtonDown(0))
         {
             Flag();
@@ -353,5 +356,11 @@ public class MinesweeperLogic : MonoBehaviour
         }
 
         return count;
+    }
+
+    public void PauseGameplay(bool p)
+    {
+        paused = p;
+        Board.Instance.gameObject.SetActive(!paused);
     }
 }

@@ -175,6 +175,7 @@ public class RobotController : MonoBehaviour
         if(robot < 0 || robot >= robots.Count) return;
         robot_commands_open = robot;
         UIManager.Instance.SetCodeBlockUI(true);
+        MinesweeperLogic.Instance.PauseGameplay(true);
 
         //Fetch everything we need
         GameObject robot_ref = robots[robot];
@@ -188,9 +189,6 @@ public class RobotController : MonoBehaviour
             DraggableNode node = node_ref.GetComponent<DraggableNode>();
             node.SetCommand(command_bank[i]);
         }
-
-        //Return if command list empty
-        if (flag_command_list.Count == 0) return;
 
         //Instantiate root
         GameObject root_ref = Instantiate(root_prefab, code_block_display_ref.transform);
@@ -242,5 +240,6 @@ public class RobotController : MonoBehaviour
         command_bank = new_command_bank;
         robot_commands_open = -1;
         UIManager.Instance.SetCodeBlockUI(false);
+        MinesweeperLogic.Instance.PauseGameplay(false);
     }
 }
