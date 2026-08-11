@@ -54,4 +54,6 @@ public abstract class IMovement : MonoBehaviour
     public void SetHealth(int h) { health = h; }
     public void LoseHealth() { health -= 1; }
     public int GetHealth() { return health; }
+
+    public abstract void PauseRobot(bool pause);
 }

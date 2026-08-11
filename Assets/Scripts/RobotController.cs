@@ -48,6 +48,9 @@ public class RobotController : MonoBehaviour
             refer.GetComponent<SpriteRenderer>().color = Random.ColorHSV();
             ClaimRobot(refer);
         }
+        //As well as 2 commands
+        command_bank.Add(RobotCommand.TurnRight);
+        command_bank.Add(RobotCommand.TurnLeft);
         UnselectRobot();
     }
 
@@ -177,6 +180,8 @@ public class RobotController : MonoBehaviour
         robot_commands_open = robot;
         UIManager.Instance.SetCodeBlockUI(true);
         MinesweeperLogic.Instance.PauseGameplay(true);
+        PauseActiveRobots(true);
+        Camera.main.orthographicSize = 5f;
 
         //Fetch everything we need
         GameObject robot_ref = robots[robot];
@@ -242,5 +247,22 @@ public class RobotController : MonoBehaviour
         robot_commands_open = -1;
         UIManager.Instance.SetCodeBlockUI(false);
         MinesweeperLogic.Instance.PauseGameplay(false);
+        PauseActiveRobots(false);
+        MinesweeperLogic.Instance.cameraFitBasedOnSize();
+    }
+
+    public void PauseActiveRobots(bool pause)
+    {
+        foreach(Transform child in transform)
+        {
+            //GameObject active means robot active
+            if (child.gameObject.activeSelf)
+            {
+                IMovement robot = child.GetComponent<IMovement>();
+                if (robot == null) continue;
+                robot.PauseRobot(pause);
+                robot.GetComponent<SpriteRenderer>().enabled = !pause;
+            }
+        }
     }
 }

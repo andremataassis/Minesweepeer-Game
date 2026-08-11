@@ -271,9 +271,10 @@ public class MinesweeperLogic : MonoBehaviour
         GenerateNumbers();
     }
 
-    private void cameraFitBasedOnSize()
+    public void cameraFitBasedOnSize()
     {
         gameObject.transform.position = new Vector2(width / -2.0f, height / -2.0f);
+        Camera.main.orthographicSize = 10.1f;
     }
 
     private void GenerateCells()

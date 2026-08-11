@@ -7,11 +7,13 @@ using UnityEngine;
 //it just moves forward each step.
 public class DiggerBot : IMovement
 {
+    private Coroutine myCoroutine;
+    
     public void Awake()
     {
         SetHealth(1);
         on_flag = new List<RobotCommand>();
-        on_flag.Add(RobotCommand.TurnRight);
+        gameObject.name = "DiggerBot" + Random.Range(0, 100);
     }
 
     public override void MoveTo(Vector2Int new_pos)
@@ -35,14 +37,12 @@ public class DiggerBot : IMovement
     {
         this.direction = direction;
         MoveTo(placement);
-        StartCoroutine(ExecuteRobot());
+        myCoroutine = StartCoroutine(ExecuteRobot());
     }
-
     IEnumerator ExecuteRobot()
     {
         while (true)
         {
-            if (MinesweeperLogic.Instance.paused) continue;
             //Purely visual: make robot face direction
             transform.rotation = Quaternion.LookRotation(Vector3.forward, (Vector2)direction);
 
@@ -71,5 +71,11 @@ public class DiggerBot : IMovement
     {
         LoseHealth();
         if (GetHealth() <= 0) Destroy(gameObject);
+    }
+
+    public override void PauseRobot(bool pause)
+    {
+        if (pause && myCoroutine != null) { StopCoroutine(myCoroutine); myCoroutine = null;  }
+        else myCoroutine = StartCoroutine(ExecuteRobot());
     }
 }
