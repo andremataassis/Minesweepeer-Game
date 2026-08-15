@@ -1,86 +1,137 @@
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class DraggableNode : MonoBehaviour
+[RequireComponent(typeof(RectTransform))]
+public class DraggableNode : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    private Vector3 mOffset;
-    private float mZCoord;
+    private RectTransform rectTransform;
+    private Canvas canvas;
+    private Vector2 pointerOffset;
     private bool dragging = false;
     public DropRoot current_root = null;
     public RobotCommand command = RobotCommand.None;
+    private Transform originalParent;
+    private DropRoot hovered_root;
     [Header("Sprites")]
     [SerializeField] public Sprite left_command_sprite;
     [SerializeField] public Sprite right_command_sprite;
-    private SpriteRenderer sprite_renderer;
+    private Image image_component;
 
-    private void Awake()
+    void Awake()
     {
-        sprite_renderer = gameObject.GetComponent<SpriteRenderer>();
+        rectTransform = GetComponent<RectTransform>();
+        canvas = GetComponentInParent<Canvas>();
+        image_component = GetComponent<Image>();
+        originalParent = transform.parent;
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void OnBeginDrag(PointerEventData eventData)
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    private void OnMouseDown()
-    {
-        mZCoord = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
-        // Store offset between object center and cursor point
-        mOffset = gameObject.transform.position - GetMouseWorldPos();
+        if (canvas == null) return;
         dragging = true;
+
+        transform.SetParent(canvas.transform, true);
+
+        if (current_root != null)
+        {
+            current_root.RemoveNode(this);
+        }
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            rectTransform,
+            eventData.position,
+            eventData.pressEventCamera,
+            out Vector2 localPoint
+        );
+        pointerOffset = localPoint;
     }
 
-    private Vector3 GetMouseWorldPos()
+
+    public void OnDrag(PointerEventData eventData)
     {
-        Vector3 mousePoint = Input.mousePosition;
-        mousePoint.z = mZCoord;
-        return Camera.main.ScreenToWorldPoint(mousePoint);
+        if (canvas == null) return;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            rectTransform.parent as RectTransform,
+            eventData.position,
+            eventData.pressEventCamera,
+            out Vector2 localPoint
+        );
+        rectTransform.anchoredPosition = localPoint - pointerOffset;
+
+        CheckForDropRootUnderCursor(eventData);
     }
 
-    private void OnMouseDrag()
-    {
-        transform.position = GetMouseWorldPos() + mOffset;
-    }
-
-    private void OnMouseUp()
-    {
-        DeattachFromRoot();
-        dragging = false;
-    }
     public void AttachToRoot(DropRoot root)
     {
-        if (dragging == true || current_root == root) return;
-        transform.SetParent(root.transform);
-        transform.position = root.GetComponent<Collider2D>().bounds.center;
         current_root = root;
         current_root.AttachNode(this);
+        hovered_root = null;
     }
 
-    public void DeattachFromRoot()
+    public void OnEndDrag(PointerEventData eventData)
     {
-        if (current_root == null) return;
-        transform.SetParent(current_root.transform.parent);
+        if (hovered_root != null)
+        {
+            AttachToRoot(hovered_root);
+        }
+        else if (current_root != null)
+        {
+            DeattachFromRoot();
+        }
+    }
+
+    private void CheckForDropRootUnderCursor(PointerEventData eventData)
+    {
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        DropRoot foundRoot = null;
+
+        foreach (RaycastResult result in results)
+        {
+            if (result.gameObject == gameObject) continue;
+
+            GameObject foundAttachZone = result.gameObject;
+            if (foundAttachZone.name != "AttachZone") break;
+            else
+            {
+                foundRoot = foundAttachZone.transform.parent.GetComponent<DropRoot>();
+            }
+        }
+
+        if (foundRoot != hovered_root)
+        {
+            if (hovered_root != null) hovered_root.HandlePointerExit();
+            hovered_root = foundRoot;
+            if (hovered_root != null) hovered_root.HandlePointerEnter();
+        }
+    }
+
+    private void DeattachFromRoot()
+    {
         current_root.RemoveNode(this);
         current_root = null;
+
+        if (originalParent != null)
+        {
+            transform.SetParent(originalParent, false);
+        }
     }
 
-    public void SetCommand(RobotCommand new_command) 
-    { 
+    public void SetCommand(RobotCommand new_command)
+    {
         command = new_command;
         switch (command)
         {
             case RobotCommand.TurnLeft:
-                sprite_renderer.sprite = left_command_sprite;
+                image_component.sprite = left_command_sprite;
                 break;
             case RobotCommand.TurnRight:
-                sprite_renderer.sprite = right_command_sprite;
+                image_component.sprite = right_command_sprite;
                 break;
         }
     }

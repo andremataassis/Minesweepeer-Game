@@ -1,73 +1,68 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
+[RequireComponent(typeof(RectTransform))]
 public class DropRoot : MonoBehaviour
 {
     [SerializeField] public GameObject attach_zone_ref;
-    private BoxCollider2D collider;
-    public List<DraggableNode> nodes;
+    private Color attach_zone_color;
+    [SerializeField] private VerticalLayoutGroup layoutGroup;
+    public List<DraggableNode> nodes = new List<DraggableNode>();
     public string trigger = null;
-    private Vector2 start_offset;
+
+    private RectTransform rectTransform;
 
     private void Awake()
     {
-        collider = GetComponent<BoxCollider2D>();
-        start_offset = collider.offset;
+        rectTransform = GetComponent<RectTransform>();
+        attach_zone_color = attach_zone_ref.GetComponent<Image>().color;
     }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
-        attach_zone_ref.SetActive(false);
+        SetAttachZone(false);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void SetAttachZone(bool on)
     {
-        
-    }
-    
-    public void UpdateColliderPosition()
-    {
-        collider.offset = new Vector2(0, (start_offset.y)* nodes.Count + (start_offset.y));
-    }
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        DraggableNode node = collision.gameObject.GetComponent<DraggableNode>();
-        if (node == null) return;
-
-        attach_zone_ref.SetActive(true);
-        attach_zone_ref.transform.position = collider.bounds.center;
-        node.AttachToRoot(this);
+        if (!on) attach_zone_ref.GetComponent<Image>().color = new Color(0, 0, 0, 0);
+        else attach_zone_ref.GetComponent<Image>().color = attach_zone_color;
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
+    public void HandlePointerEnter()
     {
-        attach_zone_ref.SetActive(false);
+        SetAttachZone(true);
+    }
+
+    public void HandlePointerExit()
+    {
+        SetAttachZone(false);
     }
 
     public void AttachNode(DraggableNode node)
     {
-        if (node.current_root != this) return;
-        nodes.Add(node);
-        UpdateColliderPosition();
+        if (!nodes.Contains(node))
+        {
+            nodes.Add(node);
+        }
+
+        node.transform.SetParent(this.transform, false);
+
+        attach_zone_ref.transform.SetAsLastSibling();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+
+        SetAttachZone(false);
     }
 
     public void RemoveNode(DraggableNode node)
     {
-        if (node.current_root != this) return;
-        nodes.Remove(node);
-        ArrangeNodes();
-    }
-
-    private void ArrangeNodes()
-    {
-        UpdateColliderPosition();
-        for(int i = 0; i < nodes.Count; i++) 
+        if (nodes.Contains(node))
         {
-            DraggableNode node = nodes[i];
-            Vector3 offset = new Vector3(0, (start_offset.y) + i*start_offset.y, 0);
-            node.gameObject.transform.position = transform.position + offset;
+            nodes.Remove(node);
+            attach_zone_ref.transform.SetAsLastSibling();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
         }
     }
 
@@ -76,11 +71,13 @@ public class DropRoot : MonoBehaviour
         List<RobotCommand> list = new List<RobotCommand>();
         for (int i = 0; i < nodes.Count; i++)
         {
-            DraggableNode node = nodes[i];
-            list.Add(node.command);
+            list.Add(nodes[i].command); 
         }
         return list;
     }
 
-    public void SetTrigger(string trigger_name) { trigger = trigger_name; }
+    public void SetTrigger(string trigger_name)
+    {
+        trigger = trigger_name;
+    }
 }

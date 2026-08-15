@@ -179,9 +179,7 @@ public class RobotController : MonoBehaviour
         if(robot < 0 || robot >= robots.Count) return;
         robot_commands_open = robot;
         UIManager.Instance.SetCodeBlockUI(true);
-        MinesweeperLogic.Instance.PauseGameplay(true);
-        PauseActiveRobots(true);
-        Camera.main.orthographicSize = 5f;
+        Camera.main.transform.position = Camera.main.transform.position + new Vector3(-3, 0 ,0);
 
         //Fetch everything we need
         GameObject robot_ref = robots[robot];
@@ -246,9 +244,7 @@ public class RobotController : MonoBehaviour
         command_bank = new_command_bank;
         robot_commands_open = -1;
         UIManager.Instance.SetCodeBlockUI(false);
-        MinesweeperLogic.Instance.PauseGameplay(false);
-        PauseActiveRobots(false);
-        MinesweeperLogic.Instance.cameraFitBasedOnSize();
+        Camera.main.transform.position = Camera.main.transform.position + new Vector3(3, 0, 0);
     }
 
     public void PauseActiveRobots(bool pause)
