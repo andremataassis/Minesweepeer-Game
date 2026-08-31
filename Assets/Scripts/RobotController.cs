@@ -190,12 +190,14 @@ public class RobotController : MonoBehaviour
         for(int i = 0; i < command_bank.Count; i++)
         {
             GameObject node_ref = Instantiate(node_prefab, code_block_display_ref.transform);
+            node_ref.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
             DraggableNode node = node_ref.GetComponent<DraggableNode>();
             node.SetCommand(command_bank[i]);
         }
 
         //Instantiate root
         GameObject root_ref = Instantiate(root_prefab, code_block_display_ref.transform);
+        root_ref.GetComponent<RectTransform>().localPosition = new Vector3(0, 100);
         DropRoot root = root_ref.GetComponent<DropRoot>();
         root.SetTrigger("On Flag");
 
@@ -231,10 +233,15 @@ public class RobotController : MonoBehaviour
                 }
             }
             //Option #2: We're looking at an UNATTACHED node (put it in the command bank)
-            else
+            else if (child.GetComponent<DraggableNode>() != null)
             {
                 DraggableNode node = child.GetComponent<DraggableNode>();
                 new_command_bank.Add(node.command);
+            }
+            //Option #3: some other UI element
+            else
+            {
+                continue;
             }
 
             //Done loading so we can get rid of it

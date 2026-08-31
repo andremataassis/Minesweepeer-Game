@@ -8,9 +8,9 @@ public class DropRoot : MonoBehaviour
 {
     [SerializeField] public GameObject attach_zone_ref;
     private Color attach_zone_color;
-    [SerializeField] private VerticalLayoutGroup layoutGroup;
     public List<DraggableNode> nodes = new List<DraggableNode>();
     public string trigger = null;
+    private float rectT_height;
 
     private RectTransform rectTransform;
 
@@ -18,6 +18,9 @@ public class DropRoot : MonoBehaviour
     {
         rectTransform = GetComponent<RectTransform>();
         attach_zone_color = attach_zone_ref.GetComponent<Image>().color;
+        rectT_height = rectTransform.rect.height;
+        attach_zone_ref.GetComponent<RectTransform>().sizeDelta = rectTransform.sizeDelta;
+        ArrangeChildren();
     }
 
     void Start()
@@ -49,11 +52,22 @@ public class DropRoot : MonoBehaviour
         }
 
         node.transform.SetParent(this.transform, false);
+        node.GetComponent<RectTransform>().localPosition = attach_zone_ref.transform.localPosition;
 
         attach_zone_ref.transform.SetAsLastSibling();
-        LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
 
+        ArrangeChildren();
         SetAttachZone(false);
+    }
+
+    public void ArrangeChildren()
+    {
+        int i = 1;
+        foreach(Transform child in transform)
+        {
+            child.GetComponent<RectTransform>().localPosition = new Vector3(0f, rectT_height * 0.8f * -i);
+            i += 1;
+        }
     }
 
     public void RemoveNode(DraggableNode node)
@@ -62,8 +76,8 @@ public class DropRoot : MonoBehaviour
         {
             nodes.Remove(node);
             attach_zone_ref.transform.SetAsLastSibling();
-            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
         }
+        ArrangeChildren();
     }
 
     public List<RobotCommand> GetCommandList()

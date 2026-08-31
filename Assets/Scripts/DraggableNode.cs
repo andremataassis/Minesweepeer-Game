@@ -8,12 +8,10 @@ using UnityEngine.UI;
 public class DraggableNode : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     private RectTransform rectTransform;
-    private Canvas canvas;
     private Vector2 pointerOffset;
     private bool dragging = false;
     public DropRoot current_root = null;
     public RobotCommand command = RobotCommand.None;
-    private Transform originalParent;
     private DropRoot hovered_root;
     [Header("Sprites")]
     [SerializeField] public Sprite left_command_sprite;
@@ -23,20 +21,16 @@ public class DraggableNode : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
-        canvas = GetComponentInParent<Canvas>();
         image_component = GetComponent<Image>();
-        originalParent = transform.parent;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (canvas == null) return;
         dragging = true;
-
-        transform.SetParent(canvas.transform, true);
 
         if (current_root != null)
         {
+            transform.SetParent(current_root.transform.parent, true);
             current_root.RemoveNode(this);
         }
 
@@ -52,8 +46,7 @@ public class DraggableNode : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (canvas == null) return;
-
+        Debug.Log(eventData == null);
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             rectTransform.parent as RectTransform,
             eventData.position,
@@ -115,16 +108,12 @@ public class DraggableNode : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     {
         current_root.RemoveNode(this);
         current_root = null;
-
-        if (originalParent != null)
-        {
-            transform.SetParent(originalParent, false);
-        }
     }
 
     public void SetCommand(RobotCommand new_command)
     {
         command = new_command;
+        image_component = GetComponent<Image>();
         switch (command)
         {
             case RobotCommand.TurnLeft:
