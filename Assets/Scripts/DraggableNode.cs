@@ -46,7 +46,6 @@ public class DraggableNode : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnDrag(PointerEventData eventData)
     {
-        Debug.Log(eventData == null);
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             rectTransform.parent as RectTransform,
             eventData.position,
