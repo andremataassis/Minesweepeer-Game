@@ -15,6 +15,10 @@ public class MinesweeperLogic : MonoBehaviour
     //Whether mines_revealed + flags_placed == mineCount -- this being true does NOT mean the game is won
     public bool win_state = false;
 
+    [Header("SFX")]
+    public AudioSource flag_place_sfx = null;
+    public AudioSource explosion_sfx = null;
+
     private Cell[,] state;
 
     //Highlight effects
@@ -171,6 +175,7 @@ public class MinesweeperLogic : MonoBehaviour
     {
         cell.revealed = true;
         cell.flagged = false;
+        explosion_sfx.Play();
         state[cell.position.x, cell.position.y] = cell;
     }
 
@@ -204,7 +209,7 @@ public class MinesweeperLogic : MonoBehaviour
         }
 
         cell.flagged = !cell.flagged;
-        if (cell.flagged) flags_placed++;
+        if (cell.flagged) { flags_placed++; flag_place_sfx.Play(); }
         else flags_placed--;
         state[cellPosition.x, cellPosition.y] = cell;
     }
