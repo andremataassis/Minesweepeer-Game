@@ -41,8 +41,13 @@ public class RobotController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        NewRun();
+    }
+
+    public void NewRun()
+    {
         //For now, acquire three digger bots on start
-        for(int i = 0; i < 8; i++)
+        for (int i = 0; i < 8; i++)
         {
             GameObject refer = Instantiate(diggerBot, transform);
             refer.GetComponent<SpriteRenderer>().color = Random.ColorHSV();

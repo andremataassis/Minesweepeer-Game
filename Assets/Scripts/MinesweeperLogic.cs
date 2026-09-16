@@ -260,15 +260,21 @@ public class MinesweeperLogic : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 Cell cell = GetCell(x, y);
-                if (cell.flagged && cell.type != Cell.Type.Mine || cell.type == Cell.Type.Mine && cell.revealed == false && cell.flagged == false) return false;
+                if (cell.flagged && cell.type != Cell.Type.Mine || cell.type == Cell.Type.Mine && cell.revealed == false && cell.flagged == false)
+                {
+                    return false;
+                }
             }
         }
         return true;
     }
 
-    private void NewGame()
+    public void NewGame()
     {
         state = new Cell[width, height];
+        win_state = false;
+        mines_revealed = 0;
+        flags_placed = 0;
         cameraFitBasedOnSize();
 
         GenerateCells();

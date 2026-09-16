@@ -20,6 +20,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] public GameObject robot_overlay_ref;
     private bool valid_robot_placement = false;
     [SerializeField] public GameObject code_block_ui_ref;
+    [SerializeField] public GameObject win_screen_ref;
+    [SerializeField] public GameObject lose_screen_ref;
+    [SerializeField] public GameObject currency_UI_ref;
+    private TextMeshProUGUI currency_UI_txt;
     public static UIManager Instance { get; private set; }
     private void Awake()
     {
@@ -31,6 +35,7 @@ public class UIManager : MonoBehaviour
         }
         submit_button = submit_button_ref.GetComponent<Button>();
         completion_txt = completion_txt_ref.GetComponent<TextMeshProUGUI>();
+        currency_UI_txt = currency_UI_ref.GetComponent <TextMeshProUGUI>();
         Instance = this;
     }
 
@@ -77,7 +82,30 @@ public class UIManager : MonoBehaviour
     public void SubmitButtonOnClick()
     {
         bool result = MinesweeperLogic.Instance.CheckIfWon();
-        if (result) Destroy(this.gameObject);
+        if (result)
+        {
+            RunManager.Instance.LevelWin();
+            win_screen_ref.SetActive(true);
+        }
+        else
+        {
+            lose_screen_ref.SetActive(true);
+        }
+    }
+    
+    public void UpdateCurrencyUI(int c)
+    {
+        currency_UI_txt.text = $"${c}";
+    }
+
+    public void ContinueButton()
+    {
+        Debug.Log("yup");
+    }
+
+    public void RetryButton()
+    {
+        RunManager.Instance.NewRun();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
